@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Premium Downloader</title>
+  <title>YT-RIPPER</title>
   <link rel="stylesheet" href="styles.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 </head>
@@ -24,8 +24,8 @@
 
   <div class="container">
     <header>
-      <h1>Video Downloader</h1>
-      <p>Download in stunning quality</p>
+      <h1 class="gradient-text">YT RIPPER | YouTube Video Downloader</h1>
+      <p>Download in stunning quality using <span class="gradient-text">YT-RIPPER</span></p>
     </header>
 
     <div class="card url-section">
@@ -51,31 +51,57 @@
         <h3 class="section-title">Settings</h3>
         <div class="option-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
           <div class="option-group">
-            <label for="format-select">Format</label>
-            <select id="format-select">
-              <option value="mp4" selected>Video (MP4)</option>
-              <option value="webm">Video (WebM)</option>
-              <option value="mp3">Audio Only (MP3)</option>
-            </select>
+            <label>Format</label>
+            <div class="custom-dropdown" id="format-dropdown" data-value="mp4">
+              <div class="dropdown-selected">
+                <span>Video (MP4)</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+              <div class="dropdown-options">
+                <div class="dropdown-item active" data-value="mp4">Video (MP4)</div>
+                <div class="dropdown-item" data-value="webm">Video (WebM)</div>
+                <div class="dropdown-item" data-value="mp3">Audio Only (MP3)</div>
+              </div>
+            </div>
           </div>
           <div class="option-group" id="resolution-group">
-            <label for="resolution-select">Resolution</label>
-            <select id="resolution-select">
-              <!-- Dynamically populated -->
-              <option value="1080" selected>1080p</option>
-            </select>
+            <label>Resolution</label>
+            <div class="custom-dropdown" id="resolution-dropdown" data-value="1080">
+              <div class="dropdown-selected">
+                <span>1080p</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+              <div class="dropdown-options">
+                <div class="dropdown-item active" data-value="1080">1080p</div>
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="option-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
           <div class="option-group">
-            <label for="cookies-select">Browser Cookies</label>
-            <select id="cookies-select">
-              <option value="" selected>None</option>
-              <option value="chrome">Chrome</option>
-              <option value="edge">Edge</option>
-              <option value="firefox">Firefox</option>
-            </select>
+            <label>Browser Cookies</label>
+            <div class="custom-dropdown" id="cookies-dropdown" data-value="">
+              <div class="dropdown-selected">
+                <span>None</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                  stroke-linejoin="round">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </div>
+              <div class="dropdown-options">
+                <div class="dropdown-item active" data-value="">None</div>
+                <div class="dropdown-item" data-value="chrome">Chrome</div>
+                <div class="dropdown-item" data-value="edge">Edge</div>
+                <div class="dropdown-item" data-value="firefox">Firefox</div>
+              </div>
+            </div>
           </div>
           <div class="option-group">
             <label for="speed-limit">Speed Limit (e.g. 5M)</label>
@@ -86,17 +112,17 @@
 
       <div class="card features-section">
         <h3 class="section-title">Features</h3>
-        <div class="option-row">
+        <div class="option-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
           <label class="toggle-container">
             <div class="toggle">
-              <input type="checkbox" id="metadata-toggle" checked>
+              <input type="checkbox" id="metadata-toggle">
               <span class="slider"></span>
             </div>
             <span>Metadata</span>
           </label>
           <label class="toggle-container">
             <div class="toggle">
-              <input type="checkbox" id="subtitles-toggle" checked>
+              <input type="checkbox" id="subtitles-toggle">
               <span class="slider"></span>
             </div>
             <span>Subtitles</span>
@@ -159,13 +185,22 @@
       </div>
       <div class="modal-body">
         <p><strong>Version:</strong> 1.0</p>
-        <p>YT Ripper is powered by these amazing open-source tools:</p>
+        <p><a href="https://github.com/chibsaabji/YT-RIPPER" class="external-link">YT Ripper</a> is powered by these
+          amazing open-source tools:</p>
         <ul class="credits-list">
           <li><strong><a href="https://github.com/yt-dlp/yt-dlp/releases/tag/2026.07.04"
                 class="external-link">yt-dlp</a>:</strong> Core extraction engine</li>
           <li><strong><a href="https://github.com/BtbN/FFmpeg-Builds/releases"
                 class="external-link">FFmpeg</a>:</strong> Media processing and merging</li>
         </ul>
+
+        <div class="support-links" style="align-items: center;">
+          <a href="https://github.com/chibsaabji/YT-Ripper" class="support-btn star-btn external-link">⭐ Drop us a
+            Star</a>
+          <a href="https://ko-fi.com/J8A3229V9A" class="support-btn kofi-btn external-link"><img
+              src="https://storage.ko-fi.com/cdn/kofi6.png?v=6" alt="Buy Me a Coffee at ko-fi.com" /></a>
+        </div>
+
         <div class="modal-footer">
           <p class="copyright">Built with ❤️ by <a href="https://github.com/chibsaabji"
               class="external-link">chibsaabji</a></p>

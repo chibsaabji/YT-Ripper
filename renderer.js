@@ -13,10 +13,75 @@ document.getElementById('btn-maximize').addEventListener('click', () => window.a
 const videoThumbnail = document.getElementById('video-thumbnail');
 const videoTitle = document.getElementById('video-title');
 const videoChannel = document.getElementById('video-channel');
-const resolutionSelect = document.getElementById('resolution-select');
 const resolutionGroup = document.getElementById('resolution-group');
-const formatSelect = document.getElementById('format-select');
-const cookiesSelect = document.getElementById('cookies-select');
+
+class CustomDropdown {
+  constructor(containerId, onChange) {
+    this.container = document.getElementById(containerId);
+    if (!this.container) return;
+    this.selected = this.container.querySelector('.dropdown-selected');
+    this.selectedText = this.selected.querySelector('span');
+    this.optionsContainer = this.container.querySelector('.dropdown-options');
+    this.value = this.container.dataset.value;
+    this.onChange = onChange;
+
+    this.selected.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpen = this.container.classList.contains('open');
+      document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
+      if (!isOpen) this.container.classList.add('open');
+    });
+
+    this.optionsContainer.addEventListener('click', (e) => {
+      const item = e.target.closest('.dropdown-item');
+      if (item) {
+        this.setValue(item.dataset.value, item.textContent);
+        this.container.classList.remove('open');
+      }
+    });
+  }
+
+  setValue(val, text) {
+    this.value = val;
+    this.selectedText.textContent = text;
+    this.container.dataset.value = val;
+    this.optionsContainer.querySelectorAll('.dropdown-item').forEach(i => i.classList.remove('active'));
+    const activeItem = this.optionsContainer.querySelector(`[data-value="${val}"]`);
+    if (activeItem) activeItem.classList.add('active');
+
+    if (this.onChange) this.onChange(val);
+  }
+
+  setOptions(optionsArray) {
+    this.optionsContainer.innerHTML = '';
+    optionsArray.forEach(opt => {
+      const div = document.createElement('div');
+      div.className = `dropdown-item ${String(opt.value) === String(this.value) ? 'active' : ''}`;
+      div.dataset.value = opt.value;
+      div.textContent = opt.label;
+      this.optionsContainer.appendChild(div);
+    });
+
+    const hasCurrent = optionsArray.find(o => String(o.value) === String(this.value));
+    if (!hasCurrent && optionsArray.length > 0) {
+      this.setValue(optionsArray[0].value, optionsArray[0].label);
+    } else if (hasCurrent) {
+      this.setValue(hasCurrent.value, hasCurrent.label);
+    }
+  }
+}
+
+// Global click to close dropdowns
+document.addEventListener('click', () => {
+  document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('open'));
+});
+
+const formatDropdown = new CustomDropdown('format-dropdown', (val) => {
+  if (val === 'mp3') resolutionGroup.classList.add('hidden');
+  else resolutionGroup.classList.remove('hidden');
+});
+const resolutionDropdown = new CustomDropdown('resolution-dropdown');
+const cookiesDropdown = new CustomDropdown('cookies-dropdown');
 const speedLimit = document.getElementById('speed-limit');
 
 const metadataToggle = document.getElementById('metadata-toggle');
@@ -34,20 +99,19 @@ const progressFill = document.getElementById('progress-fill');
 let currentVideoUrl = '';
 let selectedLocation = '';
 
-// Toggle resolution based on format
-formatSelect.addEventListener('change', () => {
-  if (formatSelect.value === 'mp3') {
-    resolutionGroup.classList.add('hidden');
-  } else {
-    resolutionGroup.classList.remove('hidden');
-  }
-});
+// Remove old event listener since CustomDropdown handles it
 
 // Fetch Video Info
 fetchBtn.addEventListener('click', async () => {
   const url = urlInput.value.trim();
   if (!url) {
-    alert('Please enter a valid YouTube URL');
+    urlInput.classList.add('input-error');
+    const oldPlaceholder = urlInput.placeholder;
+    urlInput.placeholder = 'Please enter a valid URL!';
+    setTimeout(() => {
+      urlInput.classList.remove('input-error');
+      urlInput.placeholder = oldPlaceholder;
+    }, 2000);
     return;
   }
 
@@ -55,17 +119,17 @@ fetchBtn.addEventListener('click', async () => {
   loading.classList.remove('hidden');
   videoPanel.classList.add('hidden');
   progressPanel.classList.add('hidden');
-  
+
   try {
     const info = await window.api.fetchInfo(url);
-    
+
     currentVideoUrl = url;
-    
+
     // Update UI
     videoThumbnail.src = info.thumbnail || '';
     videoTitle.textContent = info.title || 'Unknown Title';
     videoChannel.textContent = info.uploader || 'Unknown Channel';
-    
+
     // Parse resolutions dynamically
     if (info.formats && Array.isArray(info.formats)) {
       const heights = new Set();
@@ -75,51 +139,44 @@ fetchBtn.addEventListener('click', async () => {
         }
       });
       const sortedHeights = Array.from(heights).sort((a, b) => b - a); // descending
-      
-      resolutionSelect.innerHTML = ''; // clear
+
+      const options = [];
       let found1080 = false;
-      
+
       sortedHeights.forEach(h => {
         let label = h + 'p';
         if (h >= 4320) label = '8K (' + h + 'p)';
         else if (h >= 2160) label = '4K (' + h + 'p)';
         else if (h >= 1440) label = '1440p';
-        
-        const option = document.createElement('option');
-        option.value = h.toString();
-        option.textContent = label;
-        if (h === 1080) {
-          option.selected = true;
-          found1080 = true;
-        }
-        resolutionSelect.appendChild(option);
+
+        options.push({ value: h.toString(), label: label });
+        if (h === 1080) found1080 = true;
       });
-      
-      if (!found1080 && sortedHeights.length > 0) {
-        resolutionSelect.selectedIndex = 0;
-      }
+
+      resolutionDropdown.setOptions(options);
+      if (found1080) resolutionDropdown.setValue('1080', '1080p');
+
     } else {
       // Fallback for pure playlists where --flat-playlist omits formats
       const defaultHeights = [4320, 2160, 1440, 1080, 720, 480];
+      const options = [];
       defaultHeights.forEach(h => {
         let label = h + 'p';
         if (h >= 4320) label = '8K (' + h + 'p)';
         else if (h >= 2160) label = '4K (' + h + 'p)';
         else if (h >= 1440) label = '1440p';
-        
-        const option = document.createElement('option');
-        option.value = h.toString();
-        option.textContent = label;
-        if (h === 1080) option.selected = true;
-        resolutionSelect.appendChild(option);
+
+        options.push({ value: h.toString(), label: label });
       });
+      resolutionDropdown.setOptions(options);
+      resolutionDropdown.setValue('1080', '1080p');
     }
-    
+
     // Check availabilities
     const hasSubtitles = (info.subtitles && Object.keys(info.subtitles).length > 0) || (info.automatic_captions && Object.keys(info.automatic_captions).length > 0);
     const hasChapters = (info.chapters && info.chapters.length > 0);
     const hasSponsors = (info.sponsorblock_chapters && info.sponsorblock_chapters.length > 0);
-    
+
     const isPurePlaylist = url.includes('list=') && !url.includes('v=');
     const hasPlaylist = isPurePlaylist || info._type === 'playlist' || info.playlist_index != null || url.includes('list=');
 
@@ -134,10 +191,10 @@ fetchBtn.addEventListener('click', async () => {
 
     playlistToggle.disabled = !hasPlaylist;
     if (isPurePlaylist) {
-        playlistToggle.checked = true;
-        playlistToggle.disabled = true; // force download playlist since it's a pure playlist
+      playlistToggle.checked = true;
+      playlistToggle.disabled = true; // force download playlist since it's a pure playlist
     } else if (!hasPlaylist) {
-        playlistToggle.checked = false;
+      playlistToggle.checked = false;
     }
 
     // Show panel
@@ -145,7 +202,16 @@ fetchBtn.addEventListener('click', async () => {
     videoPanel.classList.remove('hidden');
   } catch (error) {
     loading.classList.add('hidden');
-    alert('Failed to fetch video. Please check the URL.');
+
+    urlInput.classList.add('input-error');
+    const oldPlaceholder = urlInput.placeholder;
+    urlInput.value = '';
+    urlInput.placeholder = 'Failed to fetch (Check URL or Cookies)';
+    setTimeout(() => {
+      urlInput.classList.remove('input-error');
+      urlInput.placeholder = oldPlaceholder;
+    }, 3000);
+
     console.error(error);
   }
 });
@@ -164,7 +230,12 @@ browseBtn.addEventListener('click', async () => {
 // Download Video
 downloadBtn.addEventListener('click', () => {
   if (!selectedLocation) {
-    alert('Please select a save location.');
+    savePath.style.color = '#ff3b30';
+    savePath.textContent = 'Save location is required!';
+    setTimeout(() => {
+      savePath.style.color = 'var(--text-muted)';
+      savePath.textContent = 'Select save location...';
+    }, 2000);
     return;
   }
 
@@ -177,9 +248,9 @@ downloadBtn.addEventListener('click', () => {
   const options = {
     url: currentVideoUrl,
     location: selectedLocation,
-    format: formatSelect.value,
-    resolution: resolutionSelect.value,
-    cookies: cookiesSelect.value,
+    format: formatDropdown.value,
+    resolution: resolutionDropdown.value,
+    cookies: cookiesDropdown.value,
     speedLimit: speedLimit.value.trim(),
     metadata: metadataToggle.checked,
     subtitles: subtitlesToggle.checked,
@@ -196,13 +267,13 @@ downloadBtn.addEventListener('click', () => {
     // Basic yt-dlp parsing: [download]  15.2% of 50.00MiB at 5.00MiB/s ETA 00:05
     const text = data.toString();
     console.log(text);
-    
+
     if (text.includes('[download]') && text.includes('%')) {
       const match = text.match(/(\d+\.\d+)%/);
       if (match && match[1]) {
         const percent = match[1];
         progressFill.style.width = `${percent}%`;
-        
+
         // Clean up the text for display
         let display = text.replace('[download]', '').trim();
         progressText.textContent = display;
@@ -221,7 +292,7 @@ downloadBtn.addEventListener('click', () => {
       progressText.textContent = 'Download Failed.';
       progressFill.style.backgroundColor = '#ff3b30'; // Red error
     }
-    
+
     setTimeout(() => {
       progressPanel.classList.add('hidden');
       videoPanel.classList.remove('hidden');
