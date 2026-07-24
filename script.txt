@@ -1,0 +1,1 @@
+.\yt-dlp.exe --ffmpeg-location "A:\YT DOWNLOADER\ffmpeg\bin\ffmpeg.exe" -f "bestvideo[height<=2160]+bestaudio/best[height<=2160]" --merge-output-format mp4 --embed-thumbnail --embed-subs --embed-chapters --embed-metadata -o "%(title)s [%(id)s].%(ext)s" "https://youtu.be/aEo95gIYYv4?si=hcuNe7oa9afzjIXv"
