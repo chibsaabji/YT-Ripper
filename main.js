@@ -244,7 +244,8 @@ ipcMain.handle('fetch-info', async (event, payload) => {
       '--no-warnings',
       '--socket-timeout', '15',
       '--sponsorblock-mark', 'all',
-      '--js-runtimes', 'node'
+      '--js-runtimes', 'node',
+      '--extractor-args', 'youtube:player_client=all'
     ];
 
     if (cookies && ALLOWED_BROWSERS.has(cookies.toLowerCase())) {
@@ -363,6 +364,7 @@ ipcMain.on('download-video', (event, options) => {
   const args = [
     '--ffmpeg-location', ffmpegPath,
     '--js-runtimes', 'node',
+    '--extractor-args', 'youtube:player_client=all',
     '--concurrent-fragments', '4', // High-speed multi-threaded fragment downloads
     '--no-mtime',
     '--socket-timeout', '30',
