@@ -4,21 +4,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https: blob:; connect-src 'self' https://api.github.com;">
   <title>YT-RIPPER</title>
   <link rel="stylesheet" href="styles.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
   <div class="titlebar">
     <div class="window-controls">
-      <div class="traffic-light close" id="btn-close"></div>
-      <div class="traffic-light minimize" id="btn-minimize"></div>
-      <div class="traffic-light maximize" id="btn-maximize"></div>
+      <div class="traffic-light close" id="btn-close" title="Close"></div>
+      <div class="traffic-light minimize" id="btn-minimize" title="Minimize"></div>
+      <div class="traffic-light maximize" id="btn-maximize" title="Maximize"></div>
     </div>
     <div class="app-brand">
       <img src="YT-RIPPER.ico" alt="Icon" class="title-icon">
-      <div class="title">YT Ripper v1.0</div>
+      <div class="title">YT Ripper <span id="app-version-badge" class="version-tag">v1.1.0</span></div>
+    </div>
+    <div id="update-badge" class="update-badge hidden" title="Click to view update details">
+      <span class="update-dot"></span>
+      <span class="update-badge-text">Update Available</span>
     </div>
   </div>
 
@@ -29,7 +34,7 @@
     </header>
 
     <div class="card url-section">
-      <input type="text" id="url-input" placeholder="Paste YouTube link here..." />
+      <input type="text" id="url-input" placeholder="Paste YouTube link here..." autocomplete="off" spellcheck="false" />
       <button id="fetch-btn" class="btn primary">Fetch Video</button>
     </div>
 
@@ -166,6 +171,7 @@
     <div id="progress-panel" class="card hidden">
       <div class="progress-info">
         <span id="progress-text">Preparing download...</span>
+        <button id="cancel-download-btn" class="btn btn-cancel" title="Cancel download">Cancel</button>
       </div>
       <div class="progress-bar-container">
         <div id="progress-fill"></div>
@@ -174,7 +180,7 @@
   </div>
 
   <!-- Info Button -->
-  <button id="info-btn" class="info-btn">i</button>
+  <button id="info-btn" class="info-btn" title="About & Updates">i</button>
 
   <!-- About Modal -->
   <div id="about-modal" class="modal-overlay hidden">
@@ -184,18 +190,23 @@
         <button id="close-modal-btn" class="close-btn">&times;</button>
       </div>
       <div class="modal-body">
-        <p><strong>Version:</strong> 1.0</p>
+        <div class="version-check-row">
+          <p><strong>App Version:</strong> <span id="about-version">1.1.0</span></p>
+          <button id="check-updates-btn" class="btn secondary btn-sm">Check for Updates</button>
+        </div>
+        <div id="update-status-msg" class="update-status-msg hidden"></div>
+
         <p><a href="https://github.com/chibsaabji/YT-RIPPER" class="external-link">YT Ripper</a> is powered by these
           amazing open-source tools:</p>
         <ul class="credits-list">
-          <li><strong><a href="https://github.com/yt-dlp/yt-dlp/releases/tag/2026.07.04"
+          <li><strong><a href="https://github.com/yt-dlp/yt-dlp/releases/tag/2026.08.19"
                 class="external-link">yt-dlp</a>:</strong> Core extraction engine</li>
           <li><strong><a href="https://github.com/BtbN/FFmpeg-Builds/releases"
                 class="external-link">FFmpeg</a>:</strong> Media processing and merging</li>
         </ul>
 
         <div class="support-links" style="align-items: center;">
-          <a href="https://github.com/chibsaabji/YT-Ripper" class="support-btn star-btn external-link">⭐ Drop us a
+          <a href="https://github.com/chibsaabji/YT-Ripper" class="support-btn star-btn external-link">⭐ Drop me a
             Star</a>
           <a href="https://ko-fi.com/J8A3229V9A" class="support-btn kofi-btn external-link"><img
               src="https://storage.ko-fi.com/cdn/kofi6.png?v=6" alt="Buy Me a Coffee at ko-fi.com" /></a>
@@ -208,6 +219,42 @@
       </div>
     </div>
   </div>
+
+  <!-- Update Available Modal -->
+  <div id="update-modal" class="modal-overlay hidden">
+    <div class="modal-content card update-modal-card">
+      <div class="modal-header">
+        <div class="update-header-info">
+          <div class="update-icon-circle">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+          </div>
+          <div>
+            <h2>Update Available!</h2>
+            <p class="update-subtitle">A newer version of YT Ripper is available</p>
+          </div>
+        </div>
+        <button id="close-update-modal-btn" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="update-version-pills">
+          <span class="pill current">Current: <span id="modal-current-version">v1.0.0</span></span>
+          <span class="pill-arrow">→</span>
+          <span class="pill latest">New: <span id="modal-latest-version">v1.1.0</span></span>
+        </div>
+        <div class="release-notes-box">
+          <h4>Release Notes:</h4>
+          <div id="release-notes-content" class="release-notes-content"></div>
+        </div>
+        <div class="update-actions">
+          <button id="download-update-btn" class="btn primary full-width">Download Update</button>
+          <button id="view-release-btn" class="btn secondary full-width">View on GitHub</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
 
   <script src="renderer.js"></script>
 </body>

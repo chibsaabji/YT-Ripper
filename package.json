@@ -1,7 +1,7 @@
 {
   "name": "yt-ripper",
-  "productName": "YT Ripper",
-  "version": "1.0.0",
+  "productName": "YT-Ripper",
+  "version": "1.1.0",
   "description": "YT-RIPPER | YouTube Video Downloader",
   "main": "main.js",
   "scripts": {
@@ -10,8 +10,19 @@
   },
   "build": {
     "appId": "com.ytripper.app",
+    "icon": "YT-RIPPER.png",
     "win": {
-      "target": "nsis"
+      "target": "nsis",
+      "executableName": "YT-Ripper"
+    },
+    "nsis": {
+      "installerIcon": "YT-RIPPER.ico",
+      "uninstallerIcon": "YT-RIPPER.ico",
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": false
     },
     "extraResources": [
       {
@@ -25,11 +36,12 @@
     ]
   },
   "keywords": [],
-  "author": "",
+  "author": "chibsaabji",
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
     "electron": "^43.2.0",
-    "electron-builder": "^26.15.3"
+    "electron-builder": "^26.15.3",
+    "png-to-ico": "^3.0.2"
   }
 }
